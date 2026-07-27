@@ -338,6 +338,17 @@ CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
         with open(task_mmu, "r") as f:
             content = f.read()
 
+                if fb == "android14-6.1" and "spoofed_redirected_name" in content:
+            content, fix_count = re.subn(
+                r"struct\s+dentry\s*\*\s*dentry\s*;",
+                "struct dentry *dentry = NULL;",
+                content
+            )
+            if fix_count:
+                with open(task_mmu, "w") as f:
+                    f.write(content)
+                logger.info(f"已初始化 task_mmu.c 中的 dentry，共修复 {fix_count} 处")
+              
         if fb == "android15-6.6" and "unsigned int nr_subpages" not in content:
             self._fix_base_c_header()
         elif fb == "android14-6.1" and "if (!vma_pages(vma))" not in content:
