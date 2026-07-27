@@ -338,7 +338,7 @@ CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
         with open(task_mmu, "r") as f:
             content = f.read()
 
-                if fb == "android14-6.1" and "spoofed_redirected_name" in content:
+        if fb == "android14-6.1" and "spoofed_redirected_name" in content:
             content, fix_count = re.subn(
                 r"struct\s+dentry\s*\*\s*dentry\s*;",
                 "struct dentry *dentry = NULL;",
