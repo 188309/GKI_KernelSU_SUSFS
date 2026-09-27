@@ -10,6 +10,8 @@ from config import (BuildConfig, KSU_REPO_CONFIG, SUSFS_REPO_CONFIG, SUKISU_PATC
                    ANYKERNEL_CONFIG, KERNEL_PATCHES_CONFIG, BBG_CONFIG, TOOLCHAIN_CONFIG,
                    LEGACY_FIXES, OP8E_PATCH_URL, KPM_PATCH_URL)
 
+from fix_sukisu_v4_2 import fix_compat
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -298,7 +300,7 @@ CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
             patch_file = common_dir / self.config.get_susfs_patch_filename()
             if patch_file.exists():
                 self._chdir(common_dir)
-                self._run_cmd(f"patch -p1 --fuzz=3 < {patch_file}", check=False)
+                self._run_cmd(f"patch -p1 --fuzz=3 < {patch_file}", check=True)
                 self._chdir(self.work_dir)
 
     def apply_sukisu_patches(self):
@@ -713,6 +715,7 @@ CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
             self.add_kernelsu()
             self.add_bbg()
             self.apply_susfs_patches()
+            fix_compat(self.work_dir, self.config)
             self.apply_sukisu_patches()
             self.apply_zram_patches()
             self.apply_task_mmu_fixes()
