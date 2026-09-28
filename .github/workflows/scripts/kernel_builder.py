@@ -11,6 +11,7 @@ from config import (BuildConfig, KSU_REPO_CONFIG, SUSFS_REPO_CONFIG, SUKISU_PATC
                    LEGACY_FIXES, OP8E_PATCH_URL, KPM_PATCH_URL)
 
 from fix_sukisu_v4_2 import fix_compat
+from uapi4_susfs_40939 import prepare_uapi4, fix_compat_uapi4, verify_candidate
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -713,15 +714,18 @@ CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
             self.init_and_sync_kernel()
             self.add_kernel_supatch()
             self.add_kernelsu()
+            prepare_uapi4(self.work_dir, self.config)
+
             self.add_bbg()
             self.apply_susfs_patches()
-            fix_compat(self.work_dir, self.config)
+            fix_compat_uapi4(self.work_dir, self.config)
             self.apply_sukisu_patches()
             self.apply_zram_patches()
             self.apply_task_mmu_fixes()
             self.configure_kernel()
             self.configure_kernel_name()
             self.show_kernel_config()
+            verify_candidate(self.work_dir, self.config)
 
             if not self.build_kernel():
                 return BuildResult(success=False, config=self.config, message="内核编译失败", build_time=time.time() - start_time)
